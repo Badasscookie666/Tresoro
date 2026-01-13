@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tresoro</title>
- 
+
 <style>
 :root {
   --bg: #0f172a;
@@ -14,7 +14,7 @@
   --accent: #38bdf8;
   --input: #020617;
 }
- 
+
 .light {
   --bg: #f8fafc;
   --card: #ffffff;
@@ -23,24 +23,22 @@
   --accent: #0284c7;
   --input: #e2e8f0;
 }
- 
-* {
-  box-sizing: border-box;
-}
- 
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
- 
+
 h1 {
   text-align: center;
   font-size: 2.2rem;
   margin: 20px 0;
 }
- 
+
 .container {
   max-width: 900px;
   margin: auto;
@@ -49,33 +47,32 @@ h1 {
   flex-direction: column;
   gap: 20px;
 }
- 
+
 .section {
   background: var(--card);
   border-radius: 16px;
   padding: 18px;
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
 }
- 
+
 .section h2 {
   text-align: center;
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin: 0 0 15px;
   font-size: 1.3rem;
 }
- 
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   margin-bottom: 10px;
 }
- 
+
 label {
   font-size: 0.9rem;
   color: var(--muted);
 }
- 
+
 input {
   width: 100%;
   padding: 10px;
@@ -85,7 +82,7 @@ input {
   color: var(--text);
   font-size: 1rem;
 }
- 
+
 button {
   background: var(--accent);
   border: none;
@@ -93,23 +90,24 @@ button {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  padding: 10px;
 }
- 
+
 button:active {
   transform: scale(.97);
 }
- 
+
 .total {
   text-align: center;
   font-size: 2.2rem;
   font-weight: 700;
 }
- 
+
 .date {
   text-align: center;
   color: var(--muted);
 }
- 
+
 .mode-btn {
   position: fixed;
   top: 15px;
@@ -123,7 +121,7 @@ button:active {
   border: none;
   box-shadow: 0 5px 15px rgba(0,0,0,.3);
 }
- 
+
 /* 📱 Mobile */
 @media (max-width: 600px) {
   .row {
@@ -132,39 +130,55 @@ button:active {
 }
 </style>
 </head>
- 
+
 <body class="dark">
- 
+
 <button class="mode-btn" onclick="toggleMode()">☀️</button>
- 
+
 <h1>Tresoro</h1>
- 
+
 <div class="container">
- 
+
+<!-- Kleingeld Rollen -->
 <div class="section">
 <h2>Kleingeld – Rollen & Gebinde</h2>
 <div id="coins"></div>
 </div>
- 
+
+<!-- Kleingeldtasche -->
 <div class="section">
 <h2>Kleingeldtasche (€)</h2>
 <input type="number" step="0.01" id="bag" oninput="calc()">
 </div>
- 
+
+<!-- Sonstige Einlagen -->
+<div class="section">
+<h2>Sonstige Einlagen (€)</h2>
+<input type="number" step="0.01" id="other" oninput="calc()">
+</div>
+
+<!-- Kassen -->
 <div class="section">
 <h2>Kassen</h2>
+
+<button style="width:100%; margin-bottom:15px"
+        onclick="setAllFull()">
+  Alle Kassen vollzählig
+</button>
+
 <div id="registers"></div>
 </div>
- 
+
+<!-- Summe -->
 <div class="section">
 <div class="total">
 <span id="sum">0.00</span> €
 </div>
 <div class="date" id="date"></div>
 </div>
- 
+
 </div>
- 
+
 <script>
 const coins = [
   { name: "1 Cent Rolle", value: 0.50 },
@@ -176,7 +190,7 @@ const coins = [
   { name: "1 Euro Rolle", value: 25.00 },
   { name: "2 Euro Rolle", value: 50.00 }
 ];
- 
+
 const coinsDiv = document.getElementById("coins");
 coins.forEach((c, i) => {
   coinsDiv.innerHTML += `
@@ -186,7 +200,7 @@ coins.forEach((c, i) => {
     <input type="number" step="1" placeholder="Gebinde (10 Rollen)" id="g${i}" oninput="calc()">
   </div>`;
 });
- 
+
 const registersDiv = document.getElementById("registers");
 for (let i = 1; i <= 6; i++) {
   registersDiv.innerHTML += `
@@ -196,37 +210,45 @@ for (let i = 1; i <= 6; i++) {
     <button onclick="setFull(${i})">Vollzählig</button>
   </div>`;
 }
- 
+
 function setFull(i) {
   document.getElementById("k" + i).value = 500;
   calc();
 }
- 
+
+function setAllFull() {
+  for (let i = 1; i <= 6; i++) {
+    document.getElementById("k" + i).value = 500;
+  }
+  calc();
+}
+
 function calc() {
   let sum = 0;
- 
+
   coins.forEach((c, i) => {
     const r = parseFloat(document.getElementById("r" + i).value) || 0;
     const g = parseFloat(document.getElementById("g" + i).value) || 0;
     sum += (r + g * 10) * c.value;
   });
- 
+
   sum += parseFloat(document.getElementById("bag").value) || 0;
- 
+  sum += parseFloat(document.getElementById("other").value) || 0;
+
   for (let i = 1; i <= 6; i++) {
     sum += parseFloat(document.getElementById("k" + i).value) || 0;
   }
- 
+
   document.getElementById("sum").innerText = sum.toFixed(2);
 }
- 
+
 function toggleMode() {
   document.body.classList.toggle("light");
 }
- 
+
 document.getElementById("date").innerText =
   new Date().toLocaleDateString("de-DE");
 </script>
- 
+
 </body>
 </html>
