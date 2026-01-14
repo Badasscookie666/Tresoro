@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -40,45 +41,18 @@ h1 {
   margin: 20px 0;
 }
 
-.mode-btn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  background: var(--card);
-  color: var(--text);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  font-size: 1.2rem;
-  border: none;
-  box-shadow: 0 5px 15px rgba(0,0,0,.3);
-  z-index: 10;
-}
-
-/* ===== Layout ===== */
-.app {
-  max-width: 1400px;
+.container {
+  max-width: 900px;
   margin: auto;
   padding: 15px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-.main {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.summary-desktop {
-  display: none;
-}
-
-/* ===== Cards ===== */
 .section {
   background: var(--card);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 18px;
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
 }
@@ -125,51 +99,33 @@ button:active {
   transform: scale(.97);
 }
 
-/* ===== Summe ===== */
 .total {
-  font-size: 2.6rem;
-  font-weight: 800;
   text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
 }
 
 .date {
   text-align: center;
   color: var(--muted);
-  margin-top: 10px;
 }
 
-/* ===== Desktop Layout ===== */
-@media (min-width: 900px) {
-  .app {
-    grid-template-columns: 2fr 1fr;
-    align-items: start;
-  }
-
-  .summary-desktop {
-    display: block;
-    position: sticky;
-    top: 20px;
-  }
-
-  .summary-mobile {
-    display: none;
-  }
-
-  .summary-box {
-    background: linear-gradient(135deg, var(--accent), #0ea5e9);
-    color: #fff;
-    border-radius: 22px;
-    padding: 30px 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.35);
-  }
-
-  .summary-box .total {
-    font-size: 3.2rem;
-  }
+.mode-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: var(--card);
+  color: var(--text);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0,0,0,.3);
 }
 
-/* ===== Mobile ===== */
-@media (max-width: 899px) {
+/* 📱 Mobile */
+@media (max-width: 600px) {
   .row {
     grid-template-columns: 1fr;
   }
@@ -179,55 +135,48 @@ button:active {
 
 <body class="dark">
 
-<button class="mode-btn" onclick="toggleMode()">🔦</button>
+<button class="mode-btn" onclick="toggleMode()">•</button>
 
-<h1>EDEKA Rohling Tresor Tool</h1>
+<h1>Tresor Tool</h1>
 
-<div class="app">
+<div class="container">
 
-<!-- LEFT / MAIN -->
-<div class="main">
-
-  <div class="section">
-    <h2>Kleingeld – Rollen & Gebinde</h2>
-    <div id="coins"></div>
-  </div>
-
-  <div class="section">
-    <h2>Kleingeldtasche (€)</h2>
-    <input type="number" step="0.01" id="bag" oninput="calc()">
-  </div>
-
-  <div class="section">
-    <h2>Sonstige Einlagen (€)</h2>
-    <input type="number" step="0.01" id="other" oninput="calc()">
-  </div>
-
-  <div class="section">
-    <h2>Kassen</h2>
-
-    <button style="width:100%; margin-bottom:15px"
-            onclick="setAllFull()">
-      Alle Kassen vollzählig
-    </button>
-
-    <div id="registers"></div>
-  </div>
-
-  <!-- Mobile Summe -->
-  <div class="section summary-mobile">
-    <div class="total"><span id="sum-mobile">0.00</span> €</div>
-    <div class="date" id="date-mobile"></div>
-  </div>
-
+<!-- Kleingeld Rollen -->
+<div class="section">
+<h2>Kleingeld – Rollen & Gebinde</h2>
+<div id="coins"></div>
 </div>
 
-<!-- RIGHT / DESKTOP SUMME -->
-<div class="summary-desktop">
-  <div class="summary-box">
-    <div class="total"><span id="sum-desktop">0.00</span> €</div>
-    <div class="date" id="date-desktop"></div>
-  </div>
+<!-- Kleingeldtasche -->
+<div class="section">
+<h2>Kleingeldtasche (€)</h2>
+<input type="number" step="0.01" id="bag" oninput="calc()">
+</div>
+
+<!-- Sonstige Einlagen -->
+<div class="section">
+<h2>Sonstige Einlagen (€)</h2>
+<input type="number" step="0.01" id="other" oninput="calc()">
+</div>
+
+<!-- Kassen -->
+<div class="section">
+<h2>Kassen</h2>
+
+<button style="width:100%; margin-bottom:15px"
+        onclick="setAllFull()">
+  Alle Kassen vollzählig
+</button>
+
+<div id="registers"></div>
+</div>
+
+<!-- Summe -->
+<div class="section">
+<div class="total">
+<span id="sum">0.00</span> €
+</div>
+<div class="date" id="date"></div>
 </div>
 
 </div>
@@ -292,17 +241,15 @@ function calc() {
     sum += parseFloat(document.getElementById("k" + i).value) || 0;
   }
 
-  document.getElementById("sum-mobile").innerText = sum.toFixed(2);
-  document.getElementById("sum-desktop").innerText = sum.toFixed(2);
+  document.getElementById("sum").innerText = sum.toFixed(2);
 }
 
 function toggleMode() {
   document.body.classList.toggle("light");
 }
 
-const date = new Date().toLocaleDateString("de-DE");
-document.getElementById("date-mobile").innerText = date;
-document.getElementById("date-desktop").innerText = date;
+document.getElementById("date").innerText =
+  new Date().toLocaleDateString("de-DE");
 </script>
 
 </body>
